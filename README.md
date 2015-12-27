@@ -10,8 +10,9 @@ into a level maps and a tilesheet.
  * NumPy
  * PIL
 
-
-    # apt-get install python3{,-numpy,-pil}
+```
+# apt-get install python3{,-numpy,-pil}
+```
 
 ## Usage
 ```
