@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PIL import Image, ImageDraw
+from PIL import Image
 import argparse
 import imghdr
 import json
@@ -88,6 +88,7 @@ def sheet_to_map(sheet, tiles):
             mapped[-1].append(tile)
 
     return mapped
+
 
 def map_to_sheet(mapped, tilesheet, size=16):
     """
