@@ -1,9 +1,9 @@
 # tyler
-Pack and unpack level maps with tilesheets. Level maps consists of a 2
+Pack and unpack level maps with tilesheets. Maps consists of a 2
 dimensional array, with each tile being specified as `[x, y]`, a position on
-the tilesheet image (*tilesheet.png* by default). tyler can receive maps and a
-tilesheet to turn them into level images and accept level images and turn them
-into a level maps and a tilesheet.
+the tilesheet (*tilesheet.png* by default). tyler can receive maps and a
+tilesheet to pack into level images, as well as accept level images to unpack
+into maps and a tilesheet.
 
 ## Requirements
  * Python 3
