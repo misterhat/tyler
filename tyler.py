@@ -25,34 +25,31 @@ import operator
 import os
 
 
-def image_to_sheet(source, size=16):
-    """Convert a source image into a matrix of tile images."""
-    width = source.size[0]
-    height = source.size[1]
+def image_to_sheet(image, size=16):
+    """Slice an image into a 2D list of cropped images."""
+    width = image.size[0]
+    height = image.size[1]
     sheet = []
 
     for y in range(0, height, size):
-        sheet.append([])
+        chopped.append([])
         for x in range(0, width, size):
-            sheet[-1].append(source.crop((x, y, x + size, y + size)))
+            sheet[-1].append(image.crop((x, y, x + size, y + size)))
 
     return sheet
 
 
-def dedupe_sheet(sheet):
+def dedupe_sheet(sheet, found=set()):
     """Remove all of the duplicate tiles from the sheet."""
-    width = len(sheet[0])
-    height = len(sheet)
-    tiles = set()
     deduped = []
 
-    for y in range(height):
+    for row in sheet:
         deduped.append([])
-        for x in range(width):
-            hashed = sheet[y][x].tobytes()
-            if hashed not in tiles:
-                tiles.add(hashed)
-                deduped[-1].append(sheet[y][x])
+        for tile in row:
+            hashed = tile.tobytes()
+            if hashed not in found:
+                found.add(hashed)
+                deduped[-1].append(tile)
             else:
                 deduped[-1].append(-1)
 
@@ -61,19 +58,12 @@ def dedupe_sheet(sheet):
 
 def sheet_to_map(sheet, tiles):
     """Convert an image sheet into a matrix."""
-    width = max(len(row) for row in tiles)
-    height = len(tiles)
     tile_locs = {}
 
-    for y in range(height):
-        for x in range(width):
-            try:
-                tile = tiles[y][x]
-            except:
-                tile = -1
+    for y, row in enumerate(tiles):
+        for x, tile in enumerate(row):
             if tile != -1:
-                tile = tile.tobytes()
-                tile_locs[tile] = (x, y)
+                tile_locs[tile.tobytes()] = (x, y)
 
     width = len(sheet[0])
     height = len(sheet)
@@ -152,20 +142,6 @@ def sheet_to_image(sheet, size=16):
     return image
 
 
-def combine_images(images):
-    """Combine a list of images into one larger image (horizontally)."""
-    width = sum(image.width for image in images)
-    height = max(images, key=operator.attrgetter('height')).height
-
-    combined = Image.new('RGBA', (width, height))
-    x = 0
-    for image in images:
-        combined.paste(image, (x, 0))
-        x += image.width
-
-    return combined
-
-
 if __name__ == '__main__':
     description = 'pack and unpack level maps with tilesheets'
     parser_format = argparse.ArgumentDefaultsHelpFormatter
@@ -196,17 +172,18 @@ if __name__ == '__main__':
     except:
         pass
 
-    packing = imghdr.what(sources[0]) is 'png'
+    packing = imghdr.what(sources[0]) == 'png'
 
     if packing:
         sheets = [image_to_sheet(Image.open(image), size) for image in sources]
+        found = set()
         output_sheet = []
 
         for sheet in sheets:
-            tiles = dedupe_sheet(sheet)
+            sheet = dedupe_sheet(sheet, found)
             if not no_compress:
-                tiles = compress_sheet(tiles)
-            output_sheet = output_sheet + tiles
+                sheet = compress_sheet(sheet)
+            output_sheet += sheet
 
         for name, sheet in zip(sources, sheets):
             mapped = sheet_to_map(sheet, output_sheet)
