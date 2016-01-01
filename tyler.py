@@ -32,7 +32,7 @@ def image_to_sheet(image, size=16):
     sheet = []
 
     for y in range(0, height, size):
-        chopped.append([])
+        sheet.append([])
         for x in range(0, width, size):
             sheet[-1].append(image.crop((x, y, x + size, y + size)))
 
